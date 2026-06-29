@@ -193,6 +193,17 @@ public class VoxyRenderSystem {
             return null;
         }
 
+        //Freecam moves the render camera away from the player; detect it so we can drop the
+        // near-plane and stencil masking that assume the camera sits at the player.
+        boolean freecamActive = false;
+        var player = Minecraft.getInstance().player;
+        if (player != null) {
+            double dx = cameraX - player.getX();
+            double dy = cameraY - player.getY();
+            double dz = cameraZ - player.getZ();
+            freecamActive = (dx*dx + dy*dy + dz*dz) > 3*3;
+        }
+
         //Do some very cheeky stuff for MiB
         if (VoxyCommon.IS_MINE_IN_ABYSS) {
             int sector = (((int)Math.floor(cameraX)>>4)+512)>>10;
@@ -212,6 +223,8 @@ public class VoxyRenderSystem {
 
         float near = getVanillaRenderDistance()<=32.0f?8f:16f;
         near = VoxyClient.disableSodiumChunkRender()?0.1f:near;
+        //Freecam can put the camera inside blocks; the 8-16 near plane would clip nearby terrain
+        near = freecamActive?0.1f:near;
         var voxyProjection = computeProjectionMat(this.properties, vanillaProjection, near, far);
 
         /*
@@ -242,6 +255,7 @@ public class VoxyRenderSystem {
                 .setScreenSize(width, height)
                 .setFogParameters(fogParameters)
                 .update();
+        viewport.freecamActive = freecamActive;
 
         if (VoxyClient.getOcclusionDebugState()==0) {
             viewport.frameId++;
@@ -298,7 +312,7 @@ public class VoxyRenderSystem {
         this.pipeline.preSetup(viewport);
 
         TimingStatistics.E.start();
-        if (this.visbleSectionStream != null && (!VoxyClient.disableSodiumChunkRender()) && !IrisUtil.irisShadowActive()) {
+        if (this.visbleSectionStream != null && (!VoxyClient.disableSodiumChunkRender()) && !IrisUtil.irisShadowActive() && !viewport.freecamActive) {
             if (VoxyClient.isFrexActive()!=(this.columnStreamedBoundStore!=null)) {
                 if (this.columnStreamedBoundStore == null) {
                     this.columnStreamedBoundStore = new ColumnStreamedBoundStore();
@@ -480,7 +494,6 @@ public class VoxyRenderSystem {
         //this jank is to capture the extra crap they inject like viewbobbing
         var rawMCProj = Minecraft.getInstance().gameRenderer.gameRenderState().levelRenderState.cameraRenderState.projectionMatrix;
         var extraProjection = rawMCProj.invert(new Matrix4f()).mul(base);
-
 
         float far = farPlane;
         float near = nearPlane;

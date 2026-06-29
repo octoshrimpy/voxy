@@ -133,6 +133,7 @@ public class IrisVoxyRenderPipeline extends AbstractRenderPipeline {
             srcHeight = viewport.height;
         }
         this.initDepthStencil(viewport, sourceDepthTexture, this.fb.framebuffer.id, srcWidth, srcHeight, viewport.width, viewport.height);
+        //TODO: freecam colour clear (alpha 0) like NormalRenderPipeline if iris path shows ghosting at vanilla pixels
         return this.fb.getDepthTex().id;
     }
 

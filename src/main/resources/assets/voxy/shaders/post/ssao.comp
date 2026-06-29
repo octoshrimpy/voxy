@@ -256,7 +256,10 @@ void main() {
     if (depth!=NEAR && depth!=FAR) {
         vec4 colour = texture(colourTex, point);
         if (colour == vec4(0.0f, 0.0f, 0.0f, 0.0f)) {
-            ocolour = vec4(1.0f, 0.0f, 0.0f, 1.0f);
+            //Depth present but no voxy colour. Was flagged red as an error, but in freecam the
+            // reprojected vanilla depth legitimately has no voxy colour - it's a vanilla pixel. Emit
+            // transparent so the composite discards it (vanilla shows) instead of a red overlay.
+            ocolour = vec4(0.0f);
         } else {
             uint metadata = uint(colour.w*255.0f);
             uint face = metadata&7u;

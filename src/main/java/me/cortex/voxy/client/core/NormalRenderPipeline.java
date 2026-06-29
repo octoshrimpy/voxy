@@ -16,6 +16,7 @@ import java.util.function.BooleanSupplier;
 
 import static org.lwjgl.opengl.GL30C.*;
 import static org.lwjgl.opengl.GL43.GL_DEPTH_STENCIL_TEXTURE_MODE;
+import static org.lwjgl.opengl.GL45.glClearNamedFramebufferfv;
 import static org.lwjgl.opengl.GL45C.glBindTextureUnit;
 import static org.lwjgl.opengl.GL45C.glTextureParameterf;
 
@@ -80,6 +81,14 @@ public class NormalRenderPipeline extends AbstractRenderPipeline {
         }
 
         this.initDepthStencil(viewport, sourceDepthTex, this.fb.framebuffer.id, srcWidth, srcHeight, viewport.width, viewport.height);
+
+        if (viewport.freecamActive) {
+            //Freecam uses depth reprojection (no stencil): where vanilla is closer, voxy depth-fails and
+            // writes no colour, but the depth there is vanilla's (not FAR) so the composite won't discard
+            // it by depth. Clear colour to alpha 0 so those pixels discard via the alpha path instead.
+            glClearNamedFramebufferfv(this.fb.framebuffer.id, GL_COLOR, 0, new float[]{0,0,0,0});
+        }
+
         return this.fb.getDepthTex().id;
     }
 
