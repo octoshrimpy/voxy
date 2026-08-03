@@ -66,8 +66,20 @@ void setupScreenspace(in UnpackedNode node) {
 
 
     vec3 basePos = vec3(((node.pos<<node.lodLevel)-camSecPos)<<5)-camSubSecPos;
+    float nodeSize = float(32<<node.lodLevel);
 
-    _frustumCulled = outsideFrustum(frustum, basePos, float(32<<node.lodLevel));
+    //basePos is relative to the camera, so the camera is inside this node when the origin lies
+    // within its AABB. Widened by the largest near plane in use, since a node the near plane cuts
+    // through has the same problem. Everything projected from such a node is unreliable: corners
+    // behind the near plane divide by w<=0, which flips their sign and corrupts the screenspace
+    // AABB and area. Establish this first, and reset it every call — it is a global, and the
+    // early return below used to leave the previous node's value in place.
+    const float NEAR_MARGIN = 16.0f;
+    _nearPlaneCrossing = all(lessThanEqual(basePos, vec3(NEAR_MARGIN))) &&
+                         all(lessThan(vec3(-NEAR_MARGIN), basePos + vec3(nodeSize)));
+
+    //A node containing the viewpoint is visible by definition; do not let a plane test drop it.
+    _frustumCulled = (!_nearPlaneCrossing) && outsideFrustum(frustum, basePos, nodeSize);
 
     //Fast exit
     if (_frustumCulled) {
@@ -90,7 +102,7 @@ void setupScreenspace(in UnpackedNode node) {
     // the hiz test wrongly cull the whole node (chunk-area dropouts when a freecam flies into terrain).
     // Flag it so isCulledByHiz keeps the node visible. Never triggers in normal play (camera == player,
     // LOD always far), so it's unconditional.
-    _nearPlaneCrossing =
+    _nearPlaneCrossing = _nearPlaneCrossing ||
         any(lessThanEqual(vec4(P000.w, P100.w, P001.w, P101.w), vec4(0.0f))) ||
         any(lessThanEqual(vec4(P010.w, P110.w, P011.w, P111.w), vec4(0.0f)));
 
