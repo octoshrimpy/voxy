@@ -40,6 +40,8 @@ public class VoxyConfig {
     // runtime is how you tell which half is at fault.
     public boolean freecamNearPlane = true;
     public boolean freecamSkipBoundCull = false;
+    //0=full pipeline, 1=skip hiz traversal, 2=skip hiz + raster cull, 3=wireframe.
+    public int occlusionDebug = 0;
     public String ssaoMode;
 
     public SSAO.SSAOMode getSSAOMode() {

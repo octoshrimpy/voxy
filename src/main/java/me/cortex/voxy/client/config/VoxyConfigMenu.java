@@ -137,6 +137,18 @@ public class VoxyConfigMenu implements ConfigEntryPoint {
                                         "voxy:freecam_skip_bound_cull",
                                         Component.translatable("voxy.config.general.freecam_skip_bound_cull"),
                                         ()->CFG.freecamSkipBoundCull, v->CFG.freecamSkipBoundCull=v),
+                                new IntOption(
+                                        "voxy:occlusion_debug",
+                                        Component.translatable("voxy.config.general.occlusion_debug"),
+                                        ()->CFG.occlusionDebug, v->CFG.occlusionDebug=v,
+                                        new Range(0, 3, 1))
+                                        .setFormatter(v->Component.literal(switch (v) {
+                                            case 1 -> "No hi-z";
+                                            case 2 -> "No hi-z or raster";
+                                            case 3 -> "Wireframe";
+                                            default -> "Off";
+                                        }))
+                                        .setPostChangeFlags(RENDER_RELOAD),
                                 new EnumOption<>("voxy:ssao_mode",
                                         SSAO.SSAOMode.class,
                                         Component.translatable("voxy.config.general.ssao_mode"),

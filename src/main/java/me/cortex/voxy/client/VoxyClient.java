@@ -2,6 +2,7 @@ package me.cortex.voxy.client;
 
 import me.cortex.voxy.client.core.gl.Capabilities;
 import me.cortex.voxy.client.core.rendering.util.SharedIndexBuffer;
+import me.cortex.voxy.client.config.VoxyConfig;
 import me.cortex.voxy.common.Logger;
 import me.cortex.voxy.commonImpl.VoxyCommon;
 import net.fabricmc.api.ClientModInitializer;
@@ -86,10 +87,9 @@ public class VoxyClient implements ClientModInitializer {
     }
 
     //0=full pipeline, 1=skip hiz traversal (stage A), 2=skip hiz + raster cull (stage B), 3=wireframe.
-    // Runtime-settable for diagnosing occlusion issues without a recompile: -Dvoxy.occlusionDebug=N
-    private static final int OCCLUSION_DEBUG = Integer.getInteger("voxy.occlusionDebug", 0);
+    // Lives in the config so an occlusion bug can be narrowed down in place, without a restart.
     public static int getOcclusionDebugState() {
-        return OCCLUSION_DEBUG;
+        return VoxyConfig.CONFIG.occlusionDebug;
     }
 
     public static boolean disableSodiumChunkRender() {

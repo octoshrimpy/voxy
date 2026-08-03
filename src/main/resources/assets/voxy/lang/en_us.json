@@ -32,5 +32,7 @@
   "voxy.config.general.freecam_near_plane": "Freecam near plane",
   "voxy.config.general.freecam_near_plane.tooltip": "Drops the near plane to 0.1 while the camera is away from the player, so terrain right in front of a freecam is not clipped away.",
   "voxy.config.general.freecam_skip_bound_cull": "Freecam skips chunk cull",
-  "voxy.config.general.freecam_skip_bound_cull.tooltip": "Lets Voxy draw LoDs inside chunks vanilla is already rendering, relying on depth reprojection alone to order them. Off is correct for almost everyone; turning it on makes LoD blocks punch through nearby builds."
+  "voxy.config.general.freecam_skip_bound_cull.tooltip": "Lets Voxy draw LoDs inside chunks vanilla is already rendering, relying on depth reprojection alone to order them. Off is correct for almost everyone; turning it on makes LoD blocks punch through nearby builds.",
+  "voxy.config.general.occlusion_debug": "Occlusion debug",
+  "voxy.config.general.occlusion_debug.tooltip": "Disables stages of the occlusion pipeline so a culling bug can be narrowed down. Off is normal rendering; the others cost performance and are for diagnosis only."
 }
