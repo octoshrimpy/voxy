@@ -143,9 +143,9 @@ public class VoxyConfigMenu implements ConfigEntryPoint {
                                         ()->CFG.occlusionDebug, v->CFG.occlusionDebug=v,
                                         new Range(0, 3, 1))
                                         .setFormatter(v->Component.literal(switch (v) {
-                                            case 1 -> "No hi-z";
-                                            case 2 -> "No hi-z or raster";
-                                            case 3 -> "Wireframe";
+                                            case 1 -> "Freeze traversal";
+                                            case 2 -> "No draw calls";
+                                            case 3 -> "No draw calls (2)";
                                             default -> "Off";
                                         }))
                                         .setPostChangeFlags(RENDER_RELOAD),

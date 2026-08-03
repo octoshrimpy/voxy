@@ -86,7 +86,10 @@ public class VoxyClient implements ClientModInitializer {
         return !FREX.isEmpty();
     }
 
-    //0=full pipeline, 1=skip hiz traversal (stage A), 2=skip hiz + raster cull (stage B), 3=wireframe.
+    //0=full pipeline. 1 freezes the hierarchical traversal and the frame counter, so the node set
+    // stops updating while rendering continues — if an artifact stops moving with the camera, the
+    // traversal produced it. 2 and 3 additionally stop draw calls being built, so they render
+    // nothing; they are only useful for timing the stages either side.
     // Lives in the config so an occlusion bug can be narrowed down in place, without a restart.
     public static int getOcclusionDebugState() {
         return VoxyConfig.CONFIG.occlusionDebug;

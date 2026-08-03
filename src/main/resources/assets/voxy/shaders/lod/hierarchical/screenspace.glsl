@@ -135,7 +135,11 @@ void setupScreenspace(in UnpackedNode node) {
             ssize += crossMag(C,B);
         }
         ssize *= 0.5f;//Half the size since we did both back and front area
-        _screenSize = ssize;
+        //With the camera inside the node, the corners behind the near plane divide by w<=0 and the
+        // projected face areas collapse, so this comes out near zero and shouldDecend() refuses to
+        // subdivide the very node the viewer is standing in. It fills the screen by definition, so
+        // treat it as unbounded.
+        _screenSize = _nearPlaneCrossing ? 1e30f : ssize;
     }
 
     _minBB = min(min(min(p000, p100), min(p001, p101)), min(min(p010, p110), min(p011, p111)));

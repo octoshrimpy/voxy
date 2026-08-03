@@ -34,5 +34,5 @@
   "voxy.config.general.freecam_skip_bound_cull": "Freecam skips chunk cull",
   "voxy.config.general.freecam_skip_bound_cull.tooltip": "Lets Voxy draw LoDs inside chunks vanilla is already rendering, relying on depth reprojection alone to order them. Off is correct for almost everyone; turning it on makes LoD blocks punch through nearby builds.",
   "voxy.config.general.occlusion_debug": "Occlusion debug",
-  "voxy.config.general.occlusion_debug.tooltip": "Disables stages of the occlusion pipeline so a culling bug can be narrowed down. Off is normal rendering; the others cost performance and are for diagnosis only."
+  "voxy.config.general.occlusion_debug.tooltip": "Diagnostic. 'Freeze traversal' stops the node set updating while rendering continues, so an artifact that stops following the camera came from the traversal. The higher settings also stop draw calls being built and so render nothing."
 }
