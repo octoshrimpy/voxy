@@ -224,7 +224,7 @@ public class VoxyRenderSystem {
         float near = getVanillaRenderDistance()<=32.0f?8f:16f;
         near = VoxyClient.disableSodiumChunkRender()?0.1f:near;
         //Freecam can put the camera inside blocks; the 8-16 near plane would clip nearby terrain
-        near = (freecamActive&&FREECAM_NEAR_PLANE)?0.1f:near;
+        near = (freecamActive&&VoxyConfig.CONFIG.freecamNearPlane)?0.1f:near;
         var voxyProjection = computeProjectionMat(this.properties, vanillaProjection, near, far);
 
         /*
@@ -313,7 +313,7 @@ public class VoxyRenderSystem {
 
         TimingStatistics.E.start();
         if (this.visbleSectionStream != null && (!VoxyClient.disableSodiumChunkRender()) && !IrisUtil.irisShadowActive()
-                && !(viewport.freecamActive&&FREECAM_SKIP_BOUND_CULL)) {
+                && !(viewport.freecamActive&&VoxyConfig.CONFIG.freecamSkipBoundCull)) {
             if (VoxyClient.isFrexActive()!=(this.columnStreamedBoundStore!=null)) {
                 if (this.columnStreamedBoundStore == null) {
                     this.columnStreamedBoundStore = new ColumnStreamedBoundStore();
@@ -489,20 +489,6 @@ public class VoxyRenderSystem {
                 new Matrix4f()
         ).mulLocal(makeProjectionMatrix(nearVoxy, 16*3000));
     }*/
-
-    //Each half of the freecam fix is separately switchable at runtime, so a regression can be
-    // bisected in one session instead of one rebuild per hypothesis.
-    // -Dvoxy.freecamNearPlane=false    keep the normal 8-16 near plane while a freecam is active
-    // -Dvoxy.freecamSkipBoundCull=true drop the vanilla chunk-bound cull (see below)
-    private static final boolean FREECAM_NEAR_PLANE =
-            !"false".equalsIgnoreCase(System.getProperty("voxy.freecamNearPlane"));
-    //Defaults off. The bound cull is what keeps voxy from drawing LoDs inside chunks vanilla is
-    // already rendering; skipping it leaves nothing but the depth reprojection to separate them,
-    // and near the camera that has too little precision to do it, so LoD blocks punch through
-    // walls and floors of loaded builds. Depth reprojection alone fixes the ordering, the cull
-    // still does the job it always did, and the two are not mutually exclusive.
-    private static final boolean FREECAM_SKIP_BOUND_CULL =
-            "true".equalsIgnoreCase(System.getProperty("voxy.freecamSkipBoundCull"));
 
     private static Matrix4f computeProjectionMat(RenderProperties properties, Matrix4fc base, float nearPlane, float farPlane) {
 

@@ -129,6 +129,14 @@ public class VoxyConfigMenu implements ConfigEntryPoint {
                                         CFG::getFogMode, CFG::setFogMode)
                                         .setNameProvider(c->Component.translatable("voxy.config.general.environmental_fog."+c.name().toLowerCase(Locale.ROOT)))
                                         .setPostChangeFlags(RENDER_RELOAD),
+                                new BoolOption(
+                                        "voxy:freecam_near_plane",
+                                        Component.translatable("voxy.config.general.freecam_near_plane"),
+                                        ()->CFG.freecamNearPlane, v->CFG.freecamNearPlane=v),
+                                new BoolOption(
+                                        "voxy:freecam_skip_bound_cull",
+                                        Component.translatable("voxy.config.general.freecam_skip_bound_cull"),
+                                        ()->CFG.freecamSkipBoundCull, v->CFG.freecamSkipBoundCull=v),
                                 new EnumOption<>("voxy:ssao_mode",
                                         SSAO.SSAOMode.class,
                                         Component.translatable("voxy.config.general.ssao_mode"),

@@ -35,6 +35,11 @@ public class VoxyConfig {
     public float subDivisionSize = 64;
     public String fogMode;
     public boolean dontUseSodiumBuilderThreads = false;
+    //Freecam rendering. Both default to what looks right; they are exposed because a bad
+    // interaction here shows up as LoDs punching through loaded chunks, and swapping them at
+    // runtime is how you tell which half is at fault.
+    public boolean freecamNearPlane = true;
+    public boolean freecamSkipBoundCull = false;
     public String ssaoMode;
 
     public SSAO.SSAOMode getSSAOMode() {
