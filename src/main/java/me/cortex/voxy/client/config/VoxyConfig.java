@@ -39,7 +39,13 @@ public class VoxyConfig {
     // interaction here shows up as LoDs punching through loaded chunks, and swapping them at
     // runtime is how you tell which half is at fault.
     public boolean freecamNearPlane = true;
-    public boolean freecamSkipBoundCull = false;
+    //On by default. The bound cull marks where vanilla's loaded chunks are so voxy does not draw
+    // LoDs behind them, but that volume is centred on the player. Seen from a displaced camera it
+    // projects to a region of the screen that has nothing to do with what is actually in front,
+    // and voxy refuses to draw there — a section-aligned hole under the camera showing the LoD
+    // cave interiors behind it. Skipping it and letting depth reprojection order the two is the
+    // lesser evil.
+    public boolean freecamSkipBoundCull = true;
     //0=full pipeline, 1=skip hiz traversal, 2=skip hiz + raster cull, 3=wireframe.
     public int occlusionDebug = 0;
     public String ssaoMode;
