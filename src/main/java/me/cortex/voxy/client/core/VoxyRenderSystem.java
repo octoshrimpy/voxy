@@ -492,12 +492,17 @@ public class VoxyRenderSystem {
 
     //Each half of the freecam fix is separately switchable at runtime, so a regression can be
     // bisected in one session instead of one rebuild per hypothesis.
-    // -Dvoxy.freecamNearPlane=false     keep the normal 8-16 near plane while a freecam is active
-    // -Dvoxy.freecamSkipBoundCull=false keep culling voxy against vanilla's chunk bounds
+    // -Dvoxy.freecamNearPlane=false    keep the normal 8-16 near plane while a freecam is active
+    // -Dvoxy.freecamSkipBoundCull=true drop the vanilla chunk-bound cull (see below)
     private static final boolean FREECAM_NEAR_PLANE =
             !"false".equalsIgnoreCase(System.getProperty("voxy.freecamNearPlane"));
+    //Defaults off. The bound cull is what keeps voxy from drawing LoDs inside chunks vanilla is
+    // already rendering; skipping it leaves nothing but the depth reprojection to separate them,
+    // and near the camera that has too little precision to do it, so LoD blocks punch through
+    // walls and floors of loaded builds. Depth reprojection alone fixes the ordering, the cull
+    // still does the job it always did, and the two are not mutually exclusive.
     private static final boolean FREECAM_SKIP_BOUND_CULL =
-            !"false".equalsIgnoreCase(System.getProperty("voxy.freecamSkipBoundCull"));
+            "true".equalsIgnoreCase(System.getProperty("voxy.freecamSkipBoundCull"));
 
     private static Matrix4f computeProjectionMat(RenderProperties properties, Matrix4fc base, float nearPlane, float farPlane) {
 
