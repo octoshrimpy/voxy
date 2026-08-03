@@ -85,8 +85,11 @@ public class VoxyClient implements ClientModInitializer {
         return !FREX.isEmpty();
     }
 
+    //0=full pipeline, 1=skip hiz traversal (stage A), 2=skip hiz + raster cull (stage B), 3=wireframe.
+    // Runtime-settable for diagnosing occlusion issues without a recompile: -Dvoxy.occlusionDebug=N
+    private static final int OCCLUSION_DEBUG = Integer.getInteger("voxy.occlusionDebug", 0);
     public static int getOcclusionDebugState() {
-        return 0;
+        return OCCLUSION_DEBUG;
     }
 
     public static boolean disableSodiumChunkRender() {

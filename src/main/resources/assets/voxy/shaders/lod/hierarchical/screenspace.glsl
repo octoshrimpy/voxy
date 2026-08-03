@@ -42,6 +42,7 @@ bool checkPointInView(vec4 point) {
 vec3 _minBB = vec3(0.0f);
 vec3 _maxBB = vec3(0.0f);
 bool _frustumCulled = false;
+bool _nearPlaneCrossing = false;
 
 float _screenSize = 0.0f;
 
@@ -83,6 +84,15 @@ void setupScreenspace(in UnpackedNode node) {
     vec4 P110 = Axis[1] + P100;
     vec4 P011 = Axis[1] + P001;
     vec4 P111 = Axis[1] + P101;
+
+    //If any AABB corner is at/behind the near plane (w<=0, i.e. the camera is inside this node) the
+    // perspective divide below flips its sign, corrupting the screenspace AABB and minBB.z and making
+    // the hiz test wrongly cull the whole node (chunk-area dropouts when a freecam flies into terrain).
+    // Flag it so isCulledByHiz keeps the node visible. Never triggers in normal play (camera == player,
+    // LOD always far), so it's unconditional.
+    _nearPlaneCrossing =
+        any(lessThanEqual(vec4(P000.w, P100.w, P001.w, P101.w), vec4(0.0f))) ||
+        any(lessThanEqual(vec4(P010.w, P110.w, P011.w, P111.w), vec4(0.0f)));
 
     //vec4 P000 = MVP * vec4(basePos, 1);
     //vec4 P100 = MVP * vec4(basePos+vec3(1,0,0)*(32<<node.lodLevel), 1);
@@ -150,6 +160,7 @@ bool outsideFrustum() {
 }
 
 bool isCulledByHiz() {
+    if (_nearPlaneCrossing) return false;//camera is inside this node; projected AABB is unreliable, keep it visible
     //if (node22.lodLevel!=0) return false;
 
     //Things start breaking down if the area is the entire scree, no idea why, just abort if we hit this case
