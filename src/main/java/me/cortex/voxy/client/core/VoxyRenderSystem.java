@@ -224,7 +224,7 @@ public class VoxyRenderSystem {
         float near = getVanillaRenderDistance()<=32.0f?8f:16f;
         near = VoxyClient.disableSodiumChunkRender()?0.1f:near;
         //Freecam can put the camera inside blocks; the 8-16 near plane would clip nearby terrain
-        near = freecamActive?0.1f:near;
+        near = (freecamActive&&FREECAM_NEAR_PLANE)?0.1f:near;
         var voxyProjection = computeProjectionMat(this.properties, vanillaProjection, near, far);
 
         /*
@@ -312,7 +312,8 @@ public class VoxyRenderSystem {
         this.pipeline.preSetup(viewport);
 
         TimingStatistics.E.start();
-        if (this.visbleSectionStream != null && (!VoxyClient.disableSodiumChunkRender()) && !IrisUtil.irisShadowActive() && !viewport.freecamActive) {
+        if (this.visbleSectionStream != null && (!VoxyClient.disableSodiumChunkRender()) && !IrisUtil.irisShadowActive()
+                && !(viewport.freecamActive&&FREECAM_SKIP_BOUND_CULL)) {
             if (VoxyClient.isFrexActive()!=(this.columnStreamedBoundStore!=null)) {
                 if (this.columnStreamedBoundStore == null) {
                     this.columnStreamedBoundStore = new ColumnStreamedBoundStore();
@@ -488,6 +489,15 @@ public class VoxyRenderSystem {
                 new Matrix4f()
         ).mulLocal(makeProjectionMatrix(nearVoxy, 16*3000));
     }*/
+
+    //Each half of the freecam fix is separately switchable at runtime, so a regression can be
+    // bisected in one session instead of one rebuild per hypothesis.
+    // -Dvoxy.freecamNearPlane=false     keep the normal 8-16 near plane while a freecam is active
+    // -Dvoxy.freecamSkipBoundCull=false keep culling voxy against vanilla's chunk bounds
+    private static final boolean FREECAM_NEAR_PLANE =
+            !"false".equalsIgnoreCase(System.getProperty("voxy.freecamNearPlane"));
+    private static final boolean FREECAM_SKIP_BOUND_CULL =
+            !"false".equalsIgnoreCase(System.getProperty("voxy.freecamSkipBoundCull"));
 
     private static Matrix4f computeProjectionMat(RenderProperties properties, Matrix4fc base, float nearPlane, float farPlane) {
 
